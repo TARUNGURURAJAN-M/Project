@@ -1,0 +1,72 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
+
+# Load cleaned dataset
+df = pd.read_csv("cleaned_data.csv")
+
+# Set plot style
+sns.set(style="whitegrid")
+plt.rcParams['figure.figsize'] = (10, 6)
+
+# Create the plots directory if it doesn't exist
+if not os.path.exists('plots'):
+    os.makedirs('plots')
+
+# --- 1. Summary Statistics ---
+print("🔍 Dataset Summary:")
+print(df.describe(include='all'))
+print("\nMissing values:\n", df.isnull().sum())
+
+# --- 2. Distribution of Success ---
+sns.countplot(x='success', data=df)
+plt.title('Distribution of Movie Success')
+plt.xlabel('Success (1 = Yes, 0 = No)')
+plt.ylabel('Count')
+plt.savefig("plots/success_distribution.png")
+plt.clf()
+
+# --- 3. Budget vs Revenue (Log Scale) ---
+sns.scatterplot(x='budget', y='revenue', hue='success', data=df)
+plt.xscale('log')
+plt.yscale('log')
+plt.title('Budget vs Revenue (Log Scale)')
+plt.xlabel('Budget')
+plt.ylabel('Revenue')
+plt.savefig("plots/budget_vs_revenue.png")
+plt.clf()
+
+# --- 4. Runtime Distribution ---
+sns.histplot(df['runtime'], kde=True, bins=30)
+plt.title('Movie Runtime Distribution')
+plt.xlabel('Runtime (minutes)')
+plt.savefig("plots/runtime_distribution.png")
+plt.clf()
+
+# --- 5. Vote Average vs Success ---
+sns.boxplot(x='success', y='vote_average', data=df)
+plt.title('Vote Average by Success')
+plt.xlabel('Success')
+plt.ylabel('Vote Average')
+plt.savefig("plots/vote_average_by_success.png")
+plt.clf()
+
+# --- 6. Popular Genres (Top 10) ---
+top_genres = df['genres'].str.split(', ').explode().value_counts().head(10)
+top_genres.plot(kind='bar')
+plt.title('Top 10 Most Frequent Genres')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig("plots/top_genres.png")
+plt.clf()
+
+# --- 7. Correlation Heatmap ---
+corr = df.corr(numeric_only=True)
+sns.heatmap(corr, annot=True, cmap='coolwarm')
+plt.title('Correlation Matrix')
+plt.savefig("plots/correlation_matrix.png")
+plt.clf()
+
+print("✅ EDA complete. Plots saved in /plots/ folder.")
