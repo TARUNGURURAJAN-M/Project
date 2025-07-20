@@ -1,0 +1,22 @@
+import sqlite3
+import pandas as pd
+
+# 1. Connect to SQLite database
+conn = sqlite3.connect("movies.db")  # Use your actual DB path
+
+# 2. Run SQL query
+query = """
+SELECT title, release_year, budget, revenue, popularity, success
+FROM movies
+WHERE success = 1
+ORDER BY revenue DESC
+LIMIT 10;
+"""
+df = pd.read_sql_query(query, conn)
+
+# 3. Show or export result
+print("🎬 Top 10 Successful Movies:\n", df)
+df.to_csv("top_successful_movies.csv", index=False)
+
+# 4. Close the connection
+conn.close()
